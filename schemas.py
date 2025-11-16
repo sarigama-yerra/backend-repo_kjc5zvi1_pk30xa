@@ -53,3 +53,21 @@ class VideoRequest(BaseModel):
     generated_url: Optional[str] = Field(None, description="URL to the generated video if available")
     thumbnail_url: Optional[str] = Field(None, description="Preview image URL")
     error: Optional[str] = Field(None, description="Error message if failed")
+
+# Volt chatbot schemas
+class Conversation(BaseModel):
+    """
+    Stores a chat conversation metadata
+    Collection name: "conversation"
+    """
+    title: str = Field(..., description="Conversation title")
+    created_by: Optional[str] = Field(None, description="User identifier if available")
+
+class ChatMessage(BaseModel):
+    """
+    Stores a single chat message
+    Collection name: "chatmessage"
+    """
+    conversation_id: str = Field(..., description="ID of the conversation this message belongs to")
+    role: Literal["user", "assistant", "system"] = Field(..., description="Message role")
+    content: str = Field(..., description="Text content of the message")

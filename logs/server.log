@@ -1,11 +1,19 @@
 INFO:     Will watch for changes in these directories: ['/home/workspace']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [238] using StatReload
-INFO:     Started server process [240]
+INFO:     Started reloader process [326] using StatReload
+INFO:     Started server process [328]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     172.20.0.1:42796 - "HEAD / HTTP/1.1" 405 Method Not Allowed
-INFO:     172.20.0.1:42792 - "GET /api/requests HTTP/1.1" 200 OK
-INFO:     172.20.0.1:42792 - "GET /api/requests HTTP/1.1" 200 OK
-INFO:     172.20.0.1:42812 - "GET /api/requests HTTP/1.1" 200 OK
-INFO:     172.20.0.1:42812 - "GET /api/requests HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34742 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     172.20.0.1:34712 - "POST /api/chat/conversations HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34722 - "POST /api/chat/conversations HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34712 - "GET /api/chat/conversations/691a39ebbcc24cda89561add/messages HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34722 - "GET /api/chat/conversations/691a39ebbcc24cda89561ade/messages HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34732 - "GET /api/requests HTTP/1.1" 200 OK
+INFO:     172.20.0.1:34722 - "GET /api/requests HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44772 - "GET /api/requests HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44758 - "POST /api/chat/conversations HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44784 - "POST /api/chat/conversations HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44772 - "GET /api/requests HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44772 - "GET /api/chat/conversations/691a3a03bcc24cda89561ae1/messages HTTP/1.1" 200 OK
+INFO:     172.20.0.1:44784 - "GET /api/chat/conversations/691a3a03bcc24cda89561ae2/messages HTTP/1.1" 200 OK
