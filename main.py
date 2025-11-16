@@ -1,11 +1,13 @@
 import os
-from fastapi import FastAPI, HTTPException
+import time
+from typing import Optional, Literal
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Literal
 from bson import ObjectId
 
-from database import db, create_document, get_documents
+from database import db, create_document, get_documents, update_document_by_id
 from schemas import VideoRequest
 
 app = FastAPI(title="AI Video Generator API")
@@ -64,11 +66,59 @@ def test_database():
     return response
 
 
-@app.post("/api/generate")
-def queue_generation(payload: GeneratePayload):
+def _simulate_thumbnail(video_url: str) -> str:
+    # In a real integration, you would request/generate a thumbnail
+    return video_url + "#thumb.jpg"
+
+
+def process_veo3_job(request_id: str, payload: GeneratePayload):
+    """Simulate Veo3 job submission and completion using an API key from env.
+    Replace this with a real provider SDK/HTTP flow when available.
     """
-    Queue a video generation job. In this environment we simulate the integration.
-    A document is created with status=queued.
+    try:
+        api_key = os.getenv("VEO3_API_KEY")
+        if not api_key:
+            update_document_by_id(
+                "videorequest",
+                request_id,
+                {"status": "failed", "error": "VEO3_API_KEY not configured on server"}
+            )
+            return
+
+        # Mark as processing
+        update_document_by_id("videorequest", request_id, {"status": "processing"})
+
+        # Simulate network/processing latency
+        time.sleep(2)
+
+        # Here you would call the real Veo3 API using `api_key` and `payload`
+        # For now we simulate a successful generation with a mock URL
+        mock_video_url = f"https://cdn.example.com/generated/{request_id}.mp4"
+        mock_thumb_url = _simulate_thumbnail(mock_video_url)
+
+        update_document_by_id(
+            "videorequest",
+            request_id,
+            {
+                "status": "completed",
+                "generated_url": mock_video_url,
+                "thumbnail_url": mock_thumb_url,
+                "error": None,
+            },
+        )
+    except Exception as e:
+        update_document_by_id(
+            "videorequest",
+            request_id,
+            {"status": "failed", "error": str(e)[:500]},
+        )
+
+
+@app.post("/api/generate")
+def queue_generation(payload: GeneratePayload, background: BackgroundTasks):
+    """
+    Queue a video generation job. When model is 'veo3', we trigger a background task
+    that simulates a provider call using an API key from the environment.
     """
     try:
         record = VideoRequest(
@@ -79,6 +129,12 @@ def queue_generation(payload: GeneratePayload):
             status="queued",
         )
         inserted_id = create_document("videorequest", record)
+
+        # Kick off background processing per model
+        if payload.model == "veo3":
+            background.add_task(process_veo3_job, inserted_id, payload)
+        # For sora2, keep it queued for now (reserved for future integration)
+
         return {"request_id": inserted_id, "status": "queued"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

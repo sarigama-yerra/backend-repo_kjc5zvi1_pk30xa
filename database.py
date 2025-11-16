@@ -9,8 +9,9 @@ from pymongo import MongoClient
 from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
-from typing import Union
+from typing import Union, Optional, Dict, Any
 from pydantic import BaseModel
+from bson import ObjectId
 
 # Load environment variables from .env file
 load_dotenv()
@@ -53,3 +54,31 @@ def get_documents(collection_name: str, filter_dict: dict = None, limit: int = N
         cursor = cursor.limit(limit)
     
     return list(cursor)
+
+
+def update_document_by_id(collection_name: str, doc_id: Union[str, ObjectId], update: Dict[str, Any]):
+    """Update a single document by its _id with $set and updated_at timestamp"""
+    if db is None:
+        raise Exception("Database not available. Check DATABASE_URL and DATABASE_NAME environment variables.")
+
+    if isinstance(doc_id, str):
+        try:
+            doc_id = ObjectId(doc_id)
+        except Exception:
+            raise ValueError("Invalid ObjectId string")
+
+    update_data = update.copy()
+    update_data['updated_at'] = datetime.now(timezone.utc)
+    res = db[collection_name].update_one({"_id": doc_id}, {"$set": update_data})
+    return res.modified_count
+
+
+def update_documents(collection_name: str, filter_dict: Dict[str, Any], update: Dict[str, Any]):
+    """Update multiple documents matching a filter"""
+    if db is None:
+        raise Exception("Database not available. Check DATABASE_URL and DATABASE_NAME environment variables.")
+
+    update_data = update.copy()
+    update_data['updated_at'] = datetime.now(timezone.utc)
+    res = db[collection_name].update_many(filter_dict, {"$set": update_data})
+    return res.modified_count
