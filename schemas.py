@@ -12,10 +12,9 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
-# Example schemas (replace with your own):
-
+# Example schemas (you can keep these for reference or remove later)
 class User(BaseModel):
     """
     Users collection schema
@@ -38,11 +37,19 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+# Video generation app schemas
+class VideoRequest(BaseModel):
+    """
+    Stores user requests to generate a video
+    Collection name: "videorequest"
+    """
+    prompt: str = Field(..., description="Creative prompt describing the scene")
+    model: Literal["sora2", "veo3"] = Field(..., description="Target generator model")
+    duration_seconds: int = Field(5, ge=1, le=60, description="Desired duration in seconds")
+    aspect_ratio: str = Field("16:9", description="Aspect ratio, e.g., 16:9, 9:16, 1:1")
+    status: Literal["queued", "processing", "completed", "failed"] = Field(
+        "queued", description="Generation status"
+    )
+    generated_url: Optional[str] = Field(None, description="URL to the generated video if available")
+    thumbnail_url: Optional[str] = Field(None, description="Preview image URL")
+    error: Optional[str] = Field(None, description="Error message if failed")
